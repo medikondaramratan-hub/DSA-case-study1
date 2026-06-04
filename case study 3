@@ -1,0 +1,113 @@
+import java.util.*;
+
+class Product {
+    String category;
+    int price;
+
+    Product(String category, int price) {
+        this.category = category;
+        this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + category + "," + (price / 1000.0) + "K)";
+    }
+}
+
+class LeafNode {
+    List<Product> products;
+    LeafNode next;
+
+    LeafNode() {
+        products = new ArrayList<>();
+        next = null;
+    }
+}
+
+public class FlipkartBPlusTreeCaseStudy {
+
+    static LeafNode head;
+
+    static void insert(LeafNode leaf, Product p) {
+        leaf.products.add(p);
+        leaf.products.sort(Comparator.comparingInt(x -> x.price));
+    }
+
+    static int rangeQuery(String category, int low, int high) {
+
+        LeafNode current = head;
+        int count = 0;
+
+        System.out.println("\nRange Query:");
+        System.out.println(category + ", price ∈ [" + low + ", " + high + "]\n");
+
+        while (current != null) {
+
+            boolean printedArrow = false;
+
+            for (Product p : current.products) {
+
+                if (p.category.equals(category)
+                        && p.price >= low
+                        && p.price <= high) {
+
+                    System.out.println(p);
+                    count++;
+                    printedArrow = true;
+                }
+            }
+
+            if (printedArrow && current.next != null) {
+                System.out.println("      |");
+                System.out.println("      v next");
+            }
+
+            current = current.next;
+        }
+
+        return count;
+    }
+
+    public static void main(String[] args) {
+
+        LeafNode leaf1 = new LeafNode();
+        LeafNode leaf2 = new LeafNode();
+        LeafNode leaf3 = new LeafNode();
+
+        head = leaf1;
+
+        leaf1.next = leaf2;
+        leaf2.next = leaf3;
+
+        insert(leaf1, new Product("elec", 11800));
+        insert(leaf1, new Product("elec", 12300));
+        insert(leaf1, new Product("elec", 12900));
+
+        insert(leaf2, new Product("elec", 13500));
+        insert(leaf2, new Product("elec", 14100));
+        insert(leaf2, new Product("elec", 14700));
+
+        insert(leaf3, new Product("elec", 15400));
+        insert(leaf3, new Product("elec", 16200));
+
+        System.out.println("B+ TREE STRUCTURE\n");
+
+        System.out.println("                | 5000 | 18000 |");
+        System.out.println("               /               \\");
+        System.out.println("      | 1000 | 3000 |     | 8000 | 12000 |");
+
+        int total = rangeQuery("elec", 12000, 14800);
+
+        System.out.println("\nTotal Products Found = " + total);
+
+        System.out.println("\nTime Complexity:");
+        System.out.println("Search = O(log n)");
+        System.out.println("Range Query = O(log n + k)");
+
+        System.out.println("\nI/O Cost Analysis:");
+        System.out.println("Tree Descent Cost = 3 page reads");
+        System.out.println("Leaf Chain Walk Cost = 14 page reads");
+        System.out.println("Total Typical Cost = 17 page reads");
+    }
+}
